@@ -41,12 +41,17 @@ def go(args):
     logger.info("Converting the last_review column to datetime")
     df["last_review"] = pd.to_datetime(df["last_review"])
 
-    # 4) Save cleaned data
+    # 4)Drop rows that are not properties in and around NYC
+    logger.info("Drop rows that are not proper longitude and latitude")
+    idx = df['longitude'].between(-74.25, -73.50) & df['latitude'].between(40.5, 41.2)
+    df = df[idx].copy()
+
+    # 5) Save cleaned data
     output_filename = "clean_sample.csv"
     logger.info("Saving the cleaned data")
     df.to_csv(output_filename, index=False)
 
-    # 4) Log cleaned artifact to W&B
+    # 6) Log cleaned artifact to W&B
     logger.info("Upload the cleaned artifact to W&B")
     # Creates a new W&B artifact object with a name, type, and description
     artifact = wandb.Artifact(
